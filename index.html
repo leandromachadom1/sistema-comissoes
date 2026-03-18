@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SplitC — Comissões | Leandro Machado</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F8FA;--surface:#FFFFFF;--surface2:#F2F4F7;--border:#E4E7EC;--border2:#CBD2E0;
+  --text:#101828;--text2:#475467;--text3:#98A2B3;
+  --accent:#0A5FC4;--accent-light:#EFF6FF;--accent-text:#1D4ED8;
+  --green:#12B76A;--green-bg:#ECFDF3;--green-text:#027A48;
+  --amber:#F79009;--amber-bg:#FFFAEB;--amber-text:#B54708;
+  --red:#F04438;--red-bg:#FEF3F2;--red-text:#B42318;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;--purple-text:#5B21B6;
+  --blue-bg:#EFF8FF;--blue-text:#175CD3;
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.06);
+  --shadow-md:0 4px 8px rgba(16,24,40,.08),0 2px 4px rgba(16,24,40,.06);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
+
+/* TOPBAR */
+#topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;box-shadow:var(--shadow)}
+.logo{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--accent);letter-spacing:-.4px;white-space:nowrap}
+.logo-mark{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;box-shadow:0 2px 6px rgba(10,95,196,.35)}
+.logo-split{color:var(--accent);font-weight:700}
+.logo-c{color:var(--green-text)}
+.logo-img{height:28px;width:auto;object-fit:contain}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.user-info{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;cursor:pointer;transition:background .15s}
+.user-info:hover{background:var(--surface2)}
+.user-name{font-size:13px;font-weight:500;color:var(--text2)}
+.user-ava{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+
+/* LAYOUT */
+#shell{display:flex;flex:1;overflow:hidden}
+#nav{width:216px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding:8px 0 16px}
+.nav-grp{padding:16px 16px 4px;font-size:10px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:13px;cursor:pointer;color:var(--text2);border-left:3px solid transparent;transition:all .12s;margin:1px 0;border-radius:0 6px 6px 0;margin-right:8px}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent-text);border-left-color:var(--accent);font-weight:500}
+.nav-ico{font-size:15px;width:18px;text-align:center}
+
+/* CONTENT */
+#content{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
+.pg{display:none}.pg.active{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.ph-title{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.ph-sub{font-size:13px;color:var(--text3);margin-top:2px}
+
+/* BUTTONS */
+.btn{height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--border2);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:var(--surface);color:var(--text);transition:all .15s;font-family:'DM Sans',sans-serif;font-weight:500}
+.btn:hover{background:var(--surface2);border-color:var(--border2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 1px 3px rgba(10,95,196,.3)}
+.btn-primary:hover{background:#0850A8;border-color:#0850A8}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-green:hover{background:#0EA060;border-color:#0EA060}
+.btn-sm{height:28px;padding:0 10px;font-size:12px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+.metric-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.metric-value{font-size:22px;font-weight:600;letter-spacing:-.5px;color:var(--text)}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.metric.green-accent{border-top:3px solid var(--green)}
+.metric.blue-accent{border-top:3px solid var(--accent)}
+.metric.amber-accent{border-top:3px solid var(--amber)}
+.metric.purple-accent{border-top:3px solid var(--purple)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;text-transform:uppercase;letter-spacing:.3px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text3);border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;background:var(--surface2)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.row:hover td{background:#FAFBFC;cursor:pointer}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text)}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text)}
+.badge-blue{background:var(--blue-bg);color:var(--blue-text)}
+.badge-red{background:var(--red-bg);color:var(--red-text)}
+.badge-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.badge-purple{background:var(--purple-bg);color:var(--purple-text)}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{height:32px;padding:0 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:border-color .15s}
+.filters input:focus,.filters select:focus{outline:none;border-color:var(--accent)}
+.filters input{width:220px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,24,40,.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:560px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{cursor:pointer;color:var(--text3);font-size:20px;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .15s}
+.modal-close:hover{background:var(--surface2);color:var(--text)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.form-control{width:100%;height:36px;padding:0 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:border-color .15s}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(10,95,196,.1)}
+textarea.form-control{height:auto;padding:8px 12px;resize:vertical;min-height:64px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* SPLIT VISUAL */
+.split-bar{height:28px;border-radius:8px;overflow:hidden;display:flex;margin:10px 0;border:1px solid var(--border)}
+.split-seg{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;transition:width .4s ease;white-space:nowrap;overflow:hidden}
+.split-seg.assessor{background:var(--accent)}
+.split-seg.sub{background:var(--green)}
+.split-seg.corretora{background:var(--amber)}
+.split-seg.outro{background:var(--purple)}
+
+.split-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.split-leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.split-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dot-assessor{background:var(--accent)}
+.dot-sub{background:var(--green)}
+.dot-corretora{background:var(--amber)}
+.dot-outro{background:var(--purple)}
+
+/* SPLIT PARTICIPANTS */
+.part-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.part-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.part-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.part-name{flex:1;font-size:13px;font-weight:500}
+.part-role{font-size:11px;color:var(--text3)}
+.part-pct{font-size:15px;font-weight:600;color:var(--accent);width:50px;text-align:right}
+.part-val{font-size:12px;color:var(--green-text);background:var(--green-bg);padding:2px 8px;border-radius:20px;font-weight:600}
+
+/* PREVIEW BOX */
+.preview-box{background:linear-gradient(135deg,#EFF6FF 0%,#ECFDF3 100%);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px}
+.preview-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.preview-item{background:rgba(255,255,255,.8);border:1px solid var(--border);border-radius:8px;padding:10px}
+.preview-label{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;font-weight:500}
+.preview-value{font-size:14px;font-weight:600;color:var(--text)}
+
+/* STATUS COLOR DOTS */
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+.dot-pago{background:var(--green)}
+.dot-pendente{background:var(--amber)}
+.dot-cancelado{background:var(--red)}
+.dot-processando{background:var(--accent)}
+
+/* PROGRESS */
+.prog-bar{height:6px;background:var(--surface2);border-radius:3px;margin-top:5px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s ease}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px;gap:0}
+.tab{padding:8px 18px;font-size:13px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;font-weight:500}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* AVATAR */
+.ava{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.ava-blue{background:var(--accent-light);color:var(--accent-text)}
+.ava-green{background:var(--green-bg);color:var(--green-text)}
+.ava-amber{background:var(--amber-bg);color:var(--amber-text)}
+.ava-purple{background:var(--purple-bg);color:var(--purple-text)}
+
+/* TEMPLATE ROW */
+.tpl-row{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .15s;background:var(--surface)}
+.tpl-row:hover{border-color:var(--accent);background:var(--accent-light)}
+.tpl-row.selected{border-color:var(--accent);background:var(--accent-light)}
+.tpl-name{font-size:13px;font-weight:600}
+.tpl-desc{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+.empty-icon{font-size:36px;margin-bottom:10px;display:block}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* INFO BOX */
+.info-box{background:var(--blue-bg);border:1px solid #BFD9F8;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-text);margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+
+/* SUM ROW */
+.sum-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)}
+.sum-row:last-child{border-bottom:none;font-weight:600;font-size:14px;padding-top:10px;margin-top:4px}
+
+/* TOTALS INLINE */
+.tot-inline{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;background:var(--green-bg);color:var(--green-text);padding:3px 10px;border-radius:20px}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="logo">
+    <div class="logo-mark">SC</div>
+    <span class="logo-split">Split</span><span class="logo-c">C</span>
+  </div>
+  <div style="font-size:12px;color:var(--text3);margin-left:4px;padding-left:12px;border-left:1px solid var(--border)">Sudden Capital · BTG Pactual</div>
+  <div class="top-right">
+    <div id="last-saved" style="font-size:11px;color:var(--text3);white-space:nowrap"></div>
+    <div class="user-info">
+      <span class="user-name">Leandro Machado</span>
+      <div class="user-ava">LM</div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <nav id="nav">
+    <div class="nav-grp">Principal</div>
+    <div class="nav-item active" data-pg="dashboard" onclick="go('dashboard',this)">
+      <span class="nav-ico">⊞</span> Dashboard
+    </div>
+    <div class="nav-grp">Comissões</div>
+    <div class="nav-item" data-pg="lancamentos" onclick="go('lancamentos',this)">
+      <span class="nav-ico">◈</span> Lançamentos
+    </div>
+    <div class="nav-item" data-pg="splits" onclick="go('splits',this)">
+      <span class="nav-ico">◧</span> Splits
+    </div>
+    <div class="nav-grp">Cadastros</div>
+    <div class="nav-item" data-pg="assessores" onclick="go('assessores',this)">
+      <span class="nav-ico">◎</span> Assessores
+    </div>
+    <div class="nav-item" data-pg="templates" onclick="go('templates',this)">
+      <span class="nav-ico">◫</span> Templates
+    </div>
+    <div class="nav-grp">Análise</div>
+    <div class="nav-item" data-pg="relatorios" onclick="go('relatorios',this)">
+      <span class="nav-ico">◷</span> Relatórios
+    </div>
+    <div class="nav-item" data-pg="rel-assessor" onclick="go('rel-assessor',this)">
+      <span class="nav-ico">◉</span> Rel. Individual
+    </div>
+  </nav>
+
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <div class="pg active" id="pg-dashboard">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Dashboard</div>
+          <div class="ph-sub">Resumo de comissões e splits — <span id="dash-date"></span></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="openModal('m-lancamento')">+ Novo lançamento</button>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric blue-accent">
+          <div class="metric-label">Comissão bruta (mês)</div>
+          <div class="metric-value" id="m-bruta" style="font-size:16px;padding-top:3px">R$ 0</div>
+          <div class="metric-sub">total gerado</div>
+        </div>
+        <div class="metric green-accent">
+          <div class="metric-label">Minha comissão líquida</div>
+          <div class="metric-value" id="m-liquida" style="font-size:16px;padding-top:3px">R$ 0</div>
+          <div class="metric-sub">após splits</div>
+        </div>
+        <div class="metric" style="border-top:3px solid var(--accent)">
+          <div class="metric-label">PJ1 — BTG Pactual</div>
+          <div class="metric-value" id="m-pj1" style="font-size:16px;padding-top:3px">R$ 0</div>
+          <div class="metric-sub" id="m-pj1-sub">0 lançamentos</div>
+        </div>
+        <div class="metric" style="border-top:3px solid var(--purple)">
+          <div class="metric-label">PJ2 — Outras inst.</div>
+          <div class="metric-value" id="m-pj2" style="font-size:16px;padding-top:3px">R$ 0</div>
+          <div class="metric-sub" id="m-pj2-sub">0 lançamentos</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-title">Últimos lançamentos <button class="btn btn-sm" onclick="go('lancamentos',null)">Ver todos →</button></div>
+          <div id="d-ultimos"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Distribuição por assessor</div>
+          <div id="d-distrib"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-title">PJ1 vs PJ2 — Comparativo (mês)</div>
+          <div id="d-pj-comp"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Resumo por produto (mês atual)</div>
+          <div id="d-prod"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANÇAMENTOS -->
+    <div class="pg" id="pg-lancamentos">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Lançamentos</div>
+          <div class="ph-sub">Registro de comissões geradas por operação</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('m-lancamento')">+ Novo lançamento</button>
+      </div>
+      <div class="filters">
+        <input type="text" id="f-lanc-busca" placeholder="Buscar cliente, produto..." oninput="renderLanc()">
+        <select id="f-lanc-status" onchange="renderLanc()">
+          <option value="">Todos os status</option>
+          <option>Pendente</option><option>Pago</option><option>Processando</option><option>Cancelado</option>
+        </select>
+        <select id="f-lanc-pj" onchange="renderLanc()">
+          <option value="">PJ1 e PJ2</option>
+          <option value="PJ1">PJ1 — BTG Pactual</option>
+          <option value="PJ2">PJ2 — Outras inst.</option>
+        </select>
+        <select id="f-lanc-mes" onchange="renderLanc()">
+          <option value="">Todos os meses</option>
+        </select>
+        <select id="f-lanc-prod" onchange="renderLanc()">
+          <option value="">Todos os produtos</option>
+          <option>Renda Fixa</option><option>Renda Variável</option><option>FIIs</option><option>Fundos</option><option>Previdência</option><option>COE</option><option>Outros</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0 0 0 0;overflow:hidden">
+        <table id="tbl-lanc">
+          <thead><tr>
+            <th>Data</th><th>Cliente</th><th>Produto</th><th>PJ</th><th>Comissão bruta</th><th>Split</th><th>Minha parte</th><th>Status</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="tbody-lanc"></tbody>
+        </table>
+        <div id="lanc-empty" class="empty" style="display:none"><span class="empty-icon">💰</span>Nenhum lançamento encontrado. <a href="#" onclick="openModal('m-lancamento');return false" style="color:var(--accent)">Criar primeiro lançamento →</a></div>
+      </div>
+    </div>
+
+    <!-- SPLITS -->
+    <div class="pg" id="pg-splits">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Splits</div>
+          <div class="ph-sub">Acordos de divisão de comissão entre assessores</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('m-split')">+ Novo split</button>
+      </div>
+      <div id="splits-list"></div>
+      <div id="splits-empty" class="empty" style="display:none">
+        <span class="empty-icon">🤝</span>Nenhum split cadastrado.<br>
+        <a href="#" onclick="openModal('m-split');return false" style="color:var(--accent)">Criar primeiro split →</a>
+      </div>
+    </div>
+
+    <!-- ASSESSORES -->
+    <div class="pg" id="pg-assessores">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Assessores</div>
+          <div class="ph-sub">Cadastro de assessores, subassessores e corretora</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('m-assessor')">+ Novo assessor</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table id="tbl-asses">
+          <thead><tr>
+            <th>Nome</th><th>Papel</th><th>Cód. BTG / Escritório</th><th>Comissão recebida</th><th>Lançamentos</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="tbody-asses"></tbody>
+        </table>
+        <div id="asses-empty" class="empty" style="display:none"><span class="empty-icon">👥</span>Nenhum assessor cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="pg" id="pg-templates">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Templates de Split</div>
+          <div class="ph-sub">Modelos reutilizáveis de divisão de comissão</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('m-template')">+ Novo template</button>
+      </div>
+      <div id="tpl-list"></div>
+      <div id="tpl-empty" class="empty" style="display:none">
+        <span class="empty-icon">📋</span>Nenhum template cadastrado.<br>
+        <a href="#" onclick="openModal('m-template');return false" style="color:var(--accent)">Criar primeiro template →</a>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div class="pg" id="pg-relatorios">
+      <div class="ph">
+        <div class="ph-title">Relatórios</div>
+        <div class="ph-sub">Análise consolidada de comissões</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card">
+          <div class="card-title">Comissão por produto</div>
+          <div id="rep-prod"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Comissão por status</div>
+          <div id="rep-status"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Histórico mensal</div>
+        <div id="rep-mensal"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Resumo por assessor</div>
+        <div id="rep-assessor"></div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIO INDIVIDUAL -->
+    <div class="pg" id="pg-rel-assessor">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Relatório Individual</div>
+          <div class="ph-sub">Desempenho detalhado por assessor com breakdown PJ1/PJ2</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="ri-assessor" class="form-control" style="width:200px;height:34px" onchange="renderRelIndividual()">
+            <option value="">Selecione um assessor...</option>
+          </select>
+          <select id="ri-pj" class="form-control" style="width:160px;height:34px" onchange="renderRelIndividual()">
+            <option value="">PJ1 e PJ2</option>
+            <option value="PJ1">PJ1 — BTG Pactual</option>
+            <option value="PJ2">PJ2 — Outras inst.</option>
+          </select>
+          <select id="ri-mes" class="form-control" style="width:130px;height:34px" onchange="renderRelIndividual()">
+            <option value="">Todos os meses</option>
+          </select>
+        </div>
+      </div>
+      <div id="ri-body">
+        <div class="empty" style="padding:60px"><span class="empty-icon">◉</span>Selecione um assessor para ver o relatório individual.</div>
+      </div>
+    </div>
+
+  </div><!-- end #content -->
+</div><!-- end #shell -->
+<div class="modal-overlay" id="m-lancamento" onclick="closeModal(event,'m-lancamento')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">
+      <span id="lanc-modal-title">Novo lançamento</span>
+      <span class="modal-close" onclick="closeModal(null,'m-lancamento')">×</span>
+    </div>
+    <input type="hidden" id="lanc-edit-id">
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Cliente *</div><input class="form-control" id="l-cli" placeholder="Nome do cliente"></div>
+      <div class="form-group"><div class="form-label">Data *</div><input class="form-control" id="l-data" type="date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Produto</div>
+        <select class="form-control" id="l-prod">
+          <option>Renda Fixa</option><option>Renda Variável</option><option>FIIs</option><option>Fundos</option><option>Previdência</option><option>COE</option><option>Outros</option>
+        </select>
+      </div>
+      <div class="form-group"><div class="form-label">Comissão bruta (R$) *</div><input class="form-control" id="l-bruta" type="number" placeholder="0,00" step="0.01" oninput="calcPreview()"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Split associado</div>
+        <select class="form-control" id="l-split" onchange="calcPreview()">
+          <option value="">— Sem split (100% seu) —</option>
+        </select>
+      </div>
+      <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Instituição (PJ)</div>
+        <select class="form-control" id="l-pj">
+          <option value="PJ1">PJ1 — BTG Pactual</option>
+          <option value="PJ2">PJ2 — Outras inst.</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Status</div>
+        <select class="form-control" id="l-status">
+          <option>Pendente</option><option>Pago</option><option>Processando</option><option>Cancelado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><div class="form-label">Observações</div><textarea class="form-control" id="l-obs" placeholder="Notas sobre a operação..."></textarea></div>
+
+    <div id="lanc-preview" class="preview-box" style="display:none">
+      <div class="preview-title">Prévia do split</div>
+      <div id="lanc-split-bar" class="split-bar"></div>
+      <div id="lanc-split-leg" class="split-legend"></div>
+      <div class="preview-grid" style="margin-top:12px" id="lanc-preview-parts"></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px">
+      <button class="btn" onclick="closeModal(null,'m-lancamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLanc()">Salvar lançamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SPLIT -->
+<div class="modal-overlay" id="m-split" onclick="closeModal(event,'m-split')">
+  <div class="modal" onclick="event.stopPropagation()" style="width:600px">
+    <div class="modal-title">
+      <span id="split-modal-title">Novo split</span>
+      <span class="modal-close" onclick="closeModal(null,'m-split')">×</span>
+    </div>
+    <input type="hidden" id="split-edit-id">
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Nome do split *</div><input class="form-control" id="sp-nome" placeholder="Ex: Split João Silva — Renda Fixa"></div>
+      <div class="form-group"><div class="form-label">Produto / Contexto</div><input class="form-control" id="sp-prod" placeholder="Ex: Renda Fixa geral"></div>
+    </div>
+
+    <div class="form-group"><div class="form-label">Descrição</div><input class="form-control" id="sp-desc" placeholder="Descreva o acordo..."></div>
+
+    <div class="form-group">
+      <div class="form-label" style="margin-bottom:10px">Participantes e percentuais</div>
+      <div class="info-box">
+        <span>ℹ️</span>
+        <span>A soma dos percentuais deve ser exatamente 100%. O percentual da <strong>Corretora</strong> é obrigatório.</span>
+      </div>
+      <div id="sp-parts-list" class="part-list"></div>
+      <button class="btn btn-sm" onclick="addSplitPart()" style="margin-top:4px">+ Adicionar participante</button>
+    </div>
+
+    <div id="sp-bar-preview" class="split-bar" style="margin:4px 0 0 0"></div>
+    <div id="sp-leg-preview" class="split-legend" style="margin-bottom:12px"></div>
+
+    <div id="sp-pct-warn" style="display:none;font-size:12px;color:var(--red-text);background:var(--red-bg);padding:8px 12px;border-radius:8px;margin-bottom:10px">
+      ⚠️ A soma dos percentuais é <span id="sp-pct-sum">0</span>%. Deve ser exatamente 100%.
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+      <button class="btn" onclick="closeModal(null,'m-split')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSplit()">Salvar split</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASSESSOR -->
+<div class="modal-overlay" id="m-assessor" onclick="closeModal(event,'m-assessor')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">
+      <span id="asses-modal-title">Novo assessor</span>
+      <span class="modal-close" onclick="closeModal(null,'m-assessor')">×</span>
+    </div>
+    <input type="hidden" id="asses-edit-id">
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Nome completo *</div><input class="form-control" id="a-nome" placeholder="Nome do assessor"></div>
+      <div class="form-group">
+        <div class="form-label">Papel</div>
+        <select class="form-control" id="a-papel">
+          <option>Assessor Principal</option><option>Subassessor</option><option>Corretora</option><option>Parceiro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Código BTG / Escritório / CNPJ</div><input class="form-control" id="a-xp" placeholder="Código BTG ou nome do escritório"></div>
+      <div class="form-group"><div class="form-label">Email</div><input class="form-control" id="a-email" placeholder="email@assessor.com"></div>
+    </div>
+    <div class="form-group"><div class="form-label">Telefone / WhatsApp</div><input class="form-control" id="a-tel" placeholder="(11) 99999-9999"></div>
+    <div class="form-group"><div class="form-label">Observações</div><textarea class="form-control" id="a-obs" placeholder="Notas sobre o assessor, contrato..."></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn" onclick="closeModal(null,'m-assessor')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAssessor()">Salvar assessor</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TEMPLATE -->
+<div class="modal-overlay" id="m-template" onclick="closeModal(event,'m-template')">
+  <div class="modal" onclick="event.stopPropagation()" style="width:580px">
+    <div class="modal-title">
+      <span id="tpl-modal-title">Novo template de split</span>
+      <span class="modal-close" onclick="closeModal(null,'m-template')">×</span>
+    </div>
+    <input type="hidden" id="tpl-edit-id">
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Nome do template *</div><input class="form-control" id="tp-nome" placeholder="Ex: Padrão RF com subassessor"></div>
+      <div class="form-group"><div class="form-label">Produto / Categoria</div><input class="form-control" id="tp-cat" placeholder="Renda Fixa, FIIs..."></div>
+    </div>
+    <div class="form-group"><div class="form-label">Participantes padrão</div>
+      <div class="info-box" style="margin-top:8px"><span>ℹ️</span><span>Defina os papéis e percentuais padrão. Ao aplicar, os nomes reais serão preenchidos.</span></div>
+      <div id="tp-parts-list" class="part-list"></div>
+      <button class="btn btn-sm" onclick="addTplPart()" style="margin-top:4px">+ Adicionar participante</button>
+    </div>
+    <div id="tp-bar" class="split-bar" style="margin:4px 0 0 0"></div>
+    <div id="tp-leg" class="split-legend" style="margin-bottom:12px"></div>
+    <div id="tp-warn" style="display:none;font-size:12px;color:var(--red-text);background:var(--red-bg);padding:8px 12px;border-radius:8px;margin-bottom:10px">
+      ⚠️ Soma: <span id="tp-sum">0</span>% (deve ser 100%)
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+      <button class="btn" onclick="closeModal(null,'m-template')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">Salvar template</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE SPLIT -->
+<div class="modal-overlay" id="m-detalhe-split" onclick="closeModal(event,'m-detalhe-split')">
+  <div class="modal" onclick="event.stopPropagation()" style="width:580px">
+    <div class="modal-title">
+      <span id="ds-title">Detalhe do Split</span>
+      <span class="modal-close" onclick="closeModal(null,'m-detalhe-split')">×</span>
+    </div>
+    <div id="ds-body"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn" onclick="closeModal(null,'m-detalhe-split')">Fechar</button>
+      <button class="btn btn-primary" id="ds-edit-btn">Editar split</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+var DB = {
+  lancamentos: [],
+  splits: [],
+  assessores: [],
+  templates: []
+};
+
+var LS_KEY = 'splitc_lm_v3';
+
+// ===================== DEMO DATA =====================
+function initDemo(){
+  DB.assessores = [
+    {id:1, nome:'Leandro Machado', papel:'Assessor Principal', xp:'SC-001', email:'leandro@suddencapital.com.br', tel:'(11) 99999-0001', obs:'Assessor principal — eu mesmo'},
+    {id:2, nome:'Carlos Ferreira', papel:'Subassessor', xp:'SC-002', email:'carlos@suddencapital.com.br', tel:'(11) 99999-0002', obs:'Sub indicou cliente João'},
+    {id:3, nome:'BTG Pactual', papel:'Corretora', xp:'BTG001', email:'operacoes@btgpactual.com', tel:'', obs:'PJ1 — Corretora principal credenciada', tipoPJ:'PJ1'},
+    {id:4, nome:'Fernanda Costa', papel:'Subassessor', xp:'SC-003', email:'fernanda@suddencapital.com.br', tel:'(11) 99888-0001', obs:'Sub especialista em FIIs'},
+    {id:5, nome:'Itaú Unibanco', papel:'Corretora', xp:'ITU001', email:'assessores@itau.com.br', tel:'', obs:'PJ2 — Parceiro bancário', tipoPJ:'PJ2'},
+  ];
+  DB.templates = [
+    {id:1, nome:'Padrão BTG com subassessor', cat:'PJ1 — BTG', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:60, cor:'assessor', pj:''},
+      {nome:'Subassessor', papel:'Subassessor', pct:25, cor:'sub', pj:''},
+      {nome:'BTG Pactual', papel:'Corretora', pct:15, cor:'corretora', pj:'PJ1'},
+    ]},
+    {id:2, nome:'Sem subassessor — BTG', cat:'PJ1 — BTG', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:85, cor:'assessor', pj:''},
+      {nome:'BTG Pactual', papel:'Corretora', pct:15, cor:'corretora', pj:'PJ1'},
+    ]},
+    {id:3, nome:'Parceiro FIIs — BTG', cat:'PJ1 — BTG / FIIs', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:50, cor:'assessor', pj:''},
+      {nome:'Fernanda Costa', papel:'Subassessor', pct:35, cor:'sub', pj:''},
+      {nome:'BTG Pactual', papel:'Corretora', pct:15, cor:'corretora', pj:'PJ1'},
+    ]},
+    {id:4, nome:'Operação via Itaú', cat:'PJ2 — Itaú', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:80, cor:'assessor', pj:''},
+      {nome:'Itaú Unibanco', papel:'Corretora', pct:20, cor:'corretora', pj:'PJ2'},
+    ]},
+  ];
+  DB.splits = [
+    {id:1, nome:'Split Carlos — Renda Fixa (BTG)', prod:'Renda Fixa', desc:'Acordo com Carlos Ferreira para clientes de RF via BTG', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:60, cor:'assessor', pj:''},
+      {nome:'Carlos Ferreira', papel:'Subassessor', pct:25, cor:'sub', pj:''},
+      {nome:'BTG Pactual', papel:'Corretora', pct:15, cor:'corretora', pj:'PJ1'},
+    ], ativo:true, criadoEm:'2025-01-10'},
+    {id:2, nome:'Split Fernanda — FIIs (BTG)', prod:'FIIs', desc:'Split com Fernanda para carteira de FIIs via BTG', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:50, cor:'assessor', pj:''},
+      {nome:'Fernanda Costa', papel:'Subassessor', pct:35, cor:'sub', pj:''},
+      {nome:'BTG Pactual', papel:'Corretora', pct:15, cor:'corretora', pj:'PJ1'},
+    ], ativo:true, criadoEm:'2025-02-05'},
+    {id:3, nome:'Operação Itaú — Renda Fixa', prod:'Renda Fixa', desc:'Clientes atendidos via parceria com Itaú', partes:[
+      {nome:'Leandro Machado', papel:'Assessor Principal', pct:80, cor:'assessor', pj:''},
+      {nome:'Itaú Unibanco', papel:'Corretora', pct:20, cor:'corretora', pj:'PJ2'},
+    ], ativo:true, criadoEm:'2025-03-01'},
+  ];
+  var m = new Date().toISOString().split('T')[0].slice(0,7);
+  DB.lancamentos = [
+    {id:1, cli:'João da Silva', data:m+'-05', prod:'Renda Fixa', bruta:2400, splitId:1, status:'Pago', obs:'CDB 12 meses', pj:'PJ1'},
+    {id:2, cli:'Maria Oliveira', data:m+'-08', prod:'FIIs', bruta:1800, splitId:2, status:'Pago', obs:'XPML11 e KNRI11', pj:'PJ1'},
+    {id:3, cli:'Pedro Santos', data:m+'-12', prod:'Renda Fixa', bruta:900, splitId:null, status:'Pendente', obs:'LCI vencimento curto', pj:'PJ1'},
+    {id:4, cli:'Ana Costa', data:m+'-14', prod:'Fundos', bruta:3500, splitId:1, status:'Processando', obs:'Fundo multimercado', pj:'PJ1'},
+    {id:5, cli:'Roberto Lima', data:m+'-18', prod:'Renda Variável', bruta:1200, splitId:null, status:'Pendente', obs:'Ações blue chips', pj:'PJ2'},
+    {id:6, cli:'Camila Braga', data:m+'-20', prod:'Previdência', bruta:5000, splitId:2, status:'Pago', obs:'PGBL empresarial', pj:'PJ1'},
+    {id:7, cli:'Diego Alves', data:m+'-22', prod:'Renda Fixa', bruta:3200, splitId:3, status:'Pago', obs:'CDB Itaú', pj:'PJ2'},
+    {id:8, cli:'Patrícia Ramos', data:m+'-25', prod:'Fundos', bruta:1500, splitId:3, status:'Pendente', obs:'Fundo DI via Itaú', pj:'PJ2'},
+  ];
+}
+
+// ===================== NAV =====================
+function go(pg, el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  var p = document.getElementById('pg-'+pg);
+  if(p) p.classList.add('active');
+  if(el) el.classList.add('active');
+  else {var ni=document.querySelector('[data-pg="'+pg+'"]'); if(ni) ni.classList.add('active');}
+  renderPage(pg);
+}
+
+function renderPage(pg){
+  if(pg==='dashboard') rdash();
+  else if(pg==='lancamentos') renderLanc();
+  else if(pg==='splits') renderSplits();
+  else if(pg==='assessores') renderAssessores();
+  else if(pg==='templates') renderTemplates();
+  else if(pg==='relatorios') renderRelatorios();
+  else if(pg==='rel-assessor') initRelIndividual();
+}
+
+// ===================== UTILS =====================
+function fmtBRL(v){ return 'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDate(d){ if(!d)return'—'; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function initials(n){ return (n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function getMonthLabel(ym){ var ms=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; var p=ym.split('-'); return ms[parseInt(p[1])-1]+'/'+p[0]; }
+function corClass(c){ var m={assessor:'ava-blue',sub:'ava-green',corretora:'ava-amber',outro:'ava-purple'}; return m[c]||'ava-blue'; }
+function hexCor(c){ var m={assessor:'var(--accent)',sub:'var(--green)',corretora:'var(--amber)',outro:'var(--purple)'}; return m[c]||'var(--accent)'; }
+
+function minhaParte(lanc){
+  if(!lanc.splitId) return lanc.bruta;
+  var sp = DB.splits.find(s=>s.id===lanc.splitId);
+  if(!sp) return lanc.bruta;
+  var eu = sp.partes.find(p=>p.nome.toLowerCase().includes('leandro') || p.papel==='Assessor Principal');
+  if(!eu) return lanc.bruta;
+  return lanc.bruta * eu.pct / 100;
+}
+
+// ===================== MODAL =====================
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(e, id){ if(e && e.target!==document.getElementById(id)) return; document.getElementById(id).classList.remove('open'); }
+
+// ===================== DASHBOARD =====================
+function rdash(){
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  var mesAtual = new Date().toISOString().slice(0,7);
+  var lancMes = DB.lancamentos.filter(l=>l.data.startsWith(mesAtual));
+  var bruta = lancMes.reduce((a,l)=>a+parseFloat(l.bruta||0),0);
+  var liquida = lancMes.reduce((a,l)=>a+minhaParte(l),0);
+
+  var pj1Lancs = lancMes.filter(l=>(l.pj||'PJ1')==='PJ1');
+  var pj2Lancs = lancMes.filter(l=>(l.pj||'')  ==='PJ2');
+  var pj1Bruta = pj1Lancs.reduce((a,l)=>a+parseFloat(l.bruta||0),0);
+  var pj2Bruta = pj2Lancs.reduce((a,l)=>a+parseFloat(l.bruta||0),0);
+
+  document.getElementById('m-bruta').textContent = fmtBRL(bruta);
+  document.getElementById('m-liquida').textContent = fmtBRL(liquida);
+  document.getElementById('m-pj1').textContent = fmtBRL(pj1Bruta);
+  document.getElementById('m-pj1-sub').textContent = pj1Lancs.length+' lançamento(s)';
+  document.getElementById('m-pj2').textContent = fmtBRL(pj2Bruta);
+  document.getElementById('m-pj2-sub').textContent = pj2Lancs.length+' lançamento(s)';
+
+  // Últimos lançamentos
+  var ul = document.getElementById('d-ultimos');
+  var recentes = [...DB.lancamentos].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,5);
+  if(!recentes.length){ ul.innerHTML='<div class="empty">Nenhum lançamento.</div>'; }
+  else{
+    ul.innerHTML='<table><thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>PJ</th><th>Minha parte</th><th>Status</th></tr></thead><tbody>'+
+    recentes.map(l=>`<tr class="row" onclick="go('lancamentos',null)"><td>${fmtDate(l.data)}</td><td>${l.cli}</td><td>${l.prod}</td><td>${badgePJ(l.pj)}</td><td><strong>${fmtBRL(minhaParte(l))}</strong></td><td>${badgeStatus(l.status)}</td></tr>`).join('')+
+    '</tbody></table>';
+  }
+
+  // Distribuição por assessor
+  var dd = document.getElementById('d-distrib');
+  var map = {};
+  DB.lancamentos.forEach(l=>{
+    if(!l.splitId){
+      map['Leandro Machado'] = (map['Leandro Machado']||0) + parseFloat(l.bruta||0);
+    } else {
+      var sp = DB.splits.find(s=>s.id===l.splitId);
+      if(sp) sp.partes.forEach(p=>{ map[p.nome] = (map[p.nome]||0) + parseFloat(l.bruta||0) * p.pct / 100; });
+    }
+  });
+  var total = Object.values(map).reduce((a,v)=>a+v,0)||1;
+  var entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  dd.innerHTML = entries.length ? entries.map(([n,v])=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="font-weight:500">${n}</span><span style="color:var(--text3)">${fmtBRL(v)}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(v/total*100)}%"></div></div>
+    </div>`).join('') : '<div class="empty">Sem dados.</div>';
+
+  // PJ1 vs PJ2 comparativo
+  var dp2 = document.getElementById('d-pj-comp');
+  var totalPJ = (pj1Bruta+pj2Bruta)||1;
+  var pj1pct = Math.round(pj1Bruta/totalPJ*100);
+  var pj2pct = 100-pj1pct;
+  dp2.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div class="split-bar" style="height:32px;border-radius:10px">
+        <div class="split-seg assessor" style="width:${pj1pct}%;font-size:12px">PJ1 ${pj1pct}%</div>
+        <div class="split-seg outro" style="width:${pj2pct}%;font-size:12px">${pj2pct>5?'PJ2 '+pj2pct+'%':''}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--accent-light);border:1px solid #BFD9F8;border-radius:10px;padding:12px">
+        <div style="font-size:10px;font-weight:600;color:var(--accent-text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">PJ1 — BTG Pactual</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent)">${fmtBRL(pj1Bruta)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">${pj1Lancs.length} lançamentos · ${fmtBRL(pj1Lancs.reduce((a,l)=>a+minhaParte(l),0))} líquido</div>
+      </div>
+      <div style="background:var(--purple-bg);border:1px solid #DDD6FE;border-radius:10px;padding:12px">
+        <div style="font-size:10px;font-weight:600;color:var(--purple-text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">PJ2 — Outras inst.</div>
+        <div style="font-size:18px;font-weight:700;color:var(--purple)">${fmtBRL(pj2Bruta)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">${pj2Lancs.length} lançamentos · ${fmtBRL(pj2Lancs.reduce((a,l)=>a+minhaParte(l),0))} líquido</div>
+      </div>
+    </div>`;
+
+  // Por produto
+  var dp = document.getElementById('d-prod');
+  var pm = {};
+  lancMes.forEach(l=>{ pm[l.prod]=(pm[l.prod]||0)+parseFloat(l.bruta||0); });
+  var ptotal = Object.values(pm).reduce((a,v)=>a+v,0)||1;
+  dp.innerHTML = Object.entries(pm).sort((a,b)=>b[1]-a[1]).map(([p,v])=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px">
+      <div style="width:130px;flex-shrink:0;color:var(--text2);font-weight:500">${p}</div>
+      <div style="flex:1;height:18px;background:var(--surface2);border-radius:4px;overflow:hidden;border:1px solid var(--border)">
+        <div style="height:100%;background:var(--accent);border-radius:4px;width:${Math.round(v/ptotal*100)}%;display:flex;align-items:center;padding-left:6px;font-size:10px;color:#fff;font-weight:600;min-width:20px">${Math.round(v/ptotal*100)}%</div>
+      </div>
+      <div style="width:90px;text-align:right;color:var(--text3)">${fmtBRL(v)}</div>
+    </div>`).join('') || '<div class="empty">Sem dados para o mês.</div>';
+}
+
+// ===================== BADGE =====================
+function badgeStatus(s){
+  var m={Pago:'badge-green',Pendente:'badge-amber',Processando:'badge-blue',Cancelado:'badge-red'};
+  return `<span class="badge ${m[s]||'badge-gray'}"><span class="status-dot dot-${s.toLowerCase()}"></span>${s}</span>`;
+}
+function badgePJ(pj){
+  if(!pj||pj==='PJ1') return '<span class="badge badge-blue">PJ1</span>';
+  return '<span class="badge badge-purple">PJ2</span>';
+}
+
+// ===================== LANÇAMENTOS =====================
+function renderLanc(){
+  populateMesFilter();
+  var busca=(document.getElementById('f-lanc-busca').value||'').toLowerCase();
+  var status=document.getElementById('f-lanc-status').value;
+  var mes=document.getElementById('f-lanc-mes').value;
+  var prod=document.getElementById('f-lanc-prod').value;
+  var pjFilt=document.getElementById('f-lanc-pj').value;
+
+  var list = DB.lancamentos.filter(l=>{
+    if(busca && !l.cli.toLowerCase().includes(busca) && !(l.prod||'').toLowerCase().includes(busca)) return false;
+    if(status && l.status!==status) return false;
+    if(mes && !l.data.startsWith(mes)) return false;
+    if(prod && l.prod!==prod) return false;
+    if(pjFilt && (l.pj||'PJ1')!==pjFilt) return false;
+    return true;
+  }).sort((a,b)=>b.data.localeCompare(a.data));
+
+  var tb = document.getElementById('tbody-lanc');
+  var em = document.getElementById('lanc-empty');
+  if(!list.length){ tb.innerHTML=''; em.style.display=''; return; }
+  em.style.display='none';
+
+  tb.innerHTML = list.map(l=>{
+    var sp = l.splitId ? DB.splits.find(s=>s.id===l.splitId) : null;
+    var min = minhaParte(l);
+    return `<tr class="row">
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">${fmtDate(l.data)}</td>
+      <td><strong>${l.cli}</strong>${l.obs?`<div style="font-size:11px;color:var(--text3)">${l.obs}</div>`:''}</td>
+      <td><span class="badge badge-gray">${l.prod}</span></td>
+      <td>${badgePJ(l.pj)}</td>
+      <td style="font-weight:600">${fmtBRL(l.bruta)}</td>
+      <td>${sp ? `<span class="badge badge-blue" style="cursor:pointer" onclick="verSplit(${sp.id})">${sp.nome}</span>` : '<span style="color:var(--text3);font-size:12px">100% seu</span>'}</td>
+      <td><strong style="color:var(--green-text)">${fmtBRL(min)}</strong></td>
+      <td>${badgeStatus(l.status)}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-sm" onclick="editLanc(${l.id})">Editar</button>
+          <button class="btn btn-sm" style="color:var(--red-text)" onclick="delLanc(${l.id})">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function populateMesFilter(){
+  var sel = document.getElementById('f-lanc-mes');
+  var meses = [...new Set(DB.lancamentos.map(l=>l.data.slice(0,7)))].sort().reverse();
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">Todos os meses</option>' + meses.map(m=>`<option value="${m}" ${m===cur?'selected':''}>${getMonthLabel(m)}</option>`).join('');
+}
+
+function editLanc(id){
+  var l = DB.lancamentos.find(x=>x.id===id); if(!l) return;
+  document.getElementById('lanc-edit-id').value = id;
+  document.getElementById('lanc-modal-title').textContent = 'Editar lançamento';
+  document.getElementById('l-cli').value = l.cli;
+  document.getElementById('l-data').value = l.data;
+  document.getElementById('l-prod').value = l.prod;
+  document.getElementById('l-bruta').value = l.bruta;
+  populateSplitSelect();
+  document.getElementById('l-split').value = l.splitId||'';
+  document.getElementById('l-status').value = l.status;
+  document.getElementById('l-pj').value = l.pj||'PJ1';
+  document.getElementById('l-obs').value = l.obs||'';
+  calcPreview();
+  openModal('m-lancamento');
+}
+
+function delLanc(id){
+  if(confirm('Remover este lançamento?')){ DB.lancamentos=DB.lancamentos.filter(x=>x.id!==id); saveData(); renderLanc(); rdash(); showToast('Lançamento removido.'); }
+}
+
+function saveLanc(){
+  var cli=document.getElementById('l-cli').value.trim();
+  var bruta=parseFloat(document.getElementById('l-bruta').value);
+  if(!cli||isNaN(bruta)||bruta<=0){ showToast('⚠️ Preencha cliente e valor.'); return; }
+  var obj={
+    id: parseInt(document.getElementById('lanc-edit-id').value)||Date.now(),
+    cli, data:document.getElementById('l-data').value||new Date().toISOString().split('T')[0],
+    prod:document.getElementById('l-prod').value, bruta,
+    splitId:document.getElementById('l-split').value ? parseInt(document.getElementById('l-split').value) : null,
+    status:document.getElementById('l-status').value, obs:document.getElementById('l-obs').value.trim(),
+    pj:document.getElementById('l-pj').value||'PJ1'
+  };
+  var idx=DB.lancamentos.findIndex(x=>x.id===obj.id);
+  if(idx>=0) DB.lancamentos[idx]=obj; else DB.lancamentos.push(obj);
+  closeModal(null,'m-lancamento');
+  resetLancForm();
+  saveData(); renderLanc(); rdash();
+  showToast('✓ Lançamento salvo');
+}
+
+function resetLancForm(){
+  document.getElementById('lanc-edit-id').value='';
+  document.getElementById('lanc-modal-title').textContent='Novo lançamento';
+  ['l-cli','l-bruta','l-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('l-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('l-prod').value='Renda Fixa';
+  document.getElementById('l-split').value='';
+  document.getElementById('l-status').value='Pendente';
+  document.getElementById('lanc-preview').style.display='none';
+}
+
+function populateSplitSelect(){
+  var sel=document.getElementById('l-split');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">— Sem split (100% seu) —</option>'+DB.splits.map(s=>`<option value="${s.id}">${s.nome}</option>`).join('');
+  sel.value=cur;
+}
+
+function calcPreview(){
+  var bruta=parseFloat(document.getElementById('l-bruta').value)||0;
+  var splitId=document.getElementById('l-split').value;
+  var prev=document.getElementById('lanc-preview');
+  if(!splitId||bruta<=0){ prev.style.display='none'; return; }
+  var sp=DB.splits.find(s=>s.id===parseInt(splitId));
+  if(!sp){ prev.style.display='none'; return; }
+  prev.style.display='block';
+  document.getElementById('lanc-split-bar').innerHTML = buildSplitBar(sp.partes);
+  document.getElementById('lanc-split-leg').innerHTML = buildSplitLeg(sp.partes);
+  document.getElementById('lanc-preview-parts').innerHTML = sp.partes.map(p=>`
+    <div style="background:rgba(255,255,255,.8);border:1px solid var(--border);border-radius:8px;padding:10px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">${p.papel}</div>
+      <div style="font-size:11px;font-weight:600;margin-bottom:4px">${p.nome}</div>
+      <div style="font-size:14px;font-weight:700;color:var(--green-text)">${fmtBRL(bruta*p.pct/100)}</div>
+      <div style="font-size:11px;color:var(--text3)">${p.pct}%</div>
+    </div>`).join('');
+}
+
+// ===================== SPLITS =====================
+function renderSplits(){
+  var list = document.getElementById('splits-list');
+  var em = document.getElementById('splits-empty');
+  if(!DB.splits.length){ list.innerHTML=''; em.style.display=''; return; }
+  em.style.display='none';
+  list.innerHTML = DB.splits.map(sp=>`
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600">${sp.nome}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">${sp.prod||''} ${sp.desc?'— '+sp.desc:''}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge ${sp.ativo?'badge-green':'badge-gray'}">${sp.ativo?'Ativo':'Inativo'}</span>
+          <button class="btn btn-sm" onclick="editSplit(${sp.id})">Editar</button>
+          <button class="btn btn-sm" style="color:var(--red-text)" onclick="delSplit(${sp.id})">✕</button>
+        </div>
+      </div>
+      <div class="split-bar">${buildSplitBar(sp.partes)}</div>
+      <div class="split-legend" style="margin-bottom:10px">${buildSplitLeg(sp.partes)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${sp.partes.map(p=>`
+          <div class="part-item" style="flex:1;min-width:160px">
+            <div class="part-avatar ${corClass(p.cor)}">${initials(p.nome)}</div>
+            <div style="flex:1"><div class="part-name">${p.nome}</div><div class="part-role">${p.papel}</div></div>
+            <div class="part-pct">${p.pct}%</div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text3)">
+        Usado em: <strong>${DB.lancamentos.filter(l=>l.splitId===sp.id).length} lançamento(s)</strong>
+        &nbsp;|&nbsp; Criado em: ${fmtDate(sp.criadoEm)}
+      </div>
+    </div>`).join('');
+}
+
+function buildSplitBar(partes){
+  return partes.map(p=>`<div class="split-seg ${p.cor}" style="width:${p.pct}%">${p.pct>=10?p.pct+'%':''}</div>`).join('');
+}
+function buildSplitLeg(partes){
+  return partes.map(p=>`<div class="split-leg-item"><div class="split-leg-dot dot-${p.cor}"></div>${p.nome} (${p.pct}%)</div>`).join('');
+}
+
+function verSplit(id){
+  var sp=DB.splits.find(s=>s.id===id); if(!sp) return;
+  document.getElementById('ds-title').textContent=sp.nome;
+  document.getElementById('ds-edit-btn').onclick=()=>{closeModal(null,'m-detalhe-split');editSplit(id);};
+  document.getElementById('ds-body').innerHTML=`
+    <div style="color:var(--text3);font-size:13px;margin-bottom:14px">${sp.desc||''} ${sp.prod?'— '+sp.prod:''}</div>
+    <div class="split-bar">${buildSplitBar(sp.partes)}</div>
+    <div class="split-legend" style="margin-bottom:16px">${buildSplitLeg(sp.partes)}</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${sp.partes.map(p=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+          <div class="ava ${corClass(p.cor)}">${initials(p.nome)}</div>
+          <div style="flex:1"><div style="font-weight:600;font-size:13px">${p.nome}</div><div style="font-size:11px;color:var(--text3)">${p.papel}</div></div>
+          <div style="font-weight:700;font-size:16px;color:var(--accent)">${p.pct}%</div>
+        </div>`).join('')}
+    </div>`;
+  openModal('m-detalhe-split');
+}
+
+// Split form helpers
+var spParts = [];
+var tpParts = [];
+
+function openModal_split_new(){
+  spParts=[
+    {nome:'Leandro Machado',papel:'Assessor Principal',pct:60,cor:'assessor'},
+    {nome:'XP Investimentos',papel:'Corretora',pct:40,cor:'corretora'}
+  ];
+  renderSpParts();
+  openModal('m-split');
+}
+
+function addSplitPart(){
+  spParts.push({nome:'',papel:'Subassessor',pct:0,cor:'sub'});
+  renderSpParts();
+}
+
+function renderSpParts(){
+  var pl=document.getElementById('sp-parts-list');
+  pl.innerHTML = spParts.map((p,i)=>`
+    <div class="part-item">
+      <div class="part-avatar ${corClass(p.cor)}" style="width:28px;height:28px;font-size:10px">${initials(p.nome)||'?'}</div>
+      <div style="flex:1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input class="form-control" style="width:160px;height:30px;font-size:12px" placeholder="Nome" value="${p.nome}" oninput="spParts[${i}].nome=this.value;renderSpParts()">
+        <select class="form-control" style="width:140px;height:30px;font-size:12px" onchange="spParts[${i}].papel=this.value;spParts[${i}].cor=roleToCor(this.value);renderSpParts()">
+          ${['Assessor Principal','Subassessor','Corretora','Parceiro'].map(r=>`<option ${r===p.papel?'selected':''}>${r}</option>`).join('')}
+        </select>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input class="form-control" style="width:70px;height:30px;font-size:12px;text-align:right" type="number" min="0" max="100" value="${p.pct}" oninput="spParts[${i}].pct=parseFloat(this.value)||0;updateSpBar()">
+          <span style="font-size:12px;color:var(--text3)">%</span>
+        </div>
+      </div>
+      <button onclick="spParts.splice(${i},1);renderSpParts()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px">×</button>
+    </div>`).join('');
+  updateSpBar();
+}
+
+function roleToCor(r){ var m={'Assessor Principal':'assessor','Subassessor':'sub','Corretora':'corretora','Parceiro':'outro'}; return m[r]||'outro'; }
+
+function updateSpBar(){
+  var sum=spParts.reduce((a,p)=>a+(parseFloat(p.pct)||0),0);
+  document.getElementById('sp-bar-preview').innerHTML = buildSplitBar(spParts);
+  document.getElementById('sp-leg-preview').innerHTML = buildSplitLeg(spParts);
+  var w=document.getElementById('sp-pct-warn');
+  var s=document.getElementById('sp-pct-sum');
+  if(Math.round(sum)!==100){ w.style.display='block'; if(s) s.textContent=Math.round(sum*100)/100; }
+  else { w.style.display='none'; }
+}
+
+function saveSplit(){
+  var nome=document.getElementById('sp-nome').value.trim();
+  if(!nome){ showToast('⚠️ Informe o nome do split.'); return; }
+  var sum=spParts.reduce((a,p)=>a+(parseFloat(p.pct)||0),0);
+  if(Math.round(sum)!==100){ showToast('⚠️ A soma dos percentuais deve ser 100%.'); return; }
+  var editId=parseInt(document.getElementById('split-edit-id').value)||null;
+  var obj={
+    id:editId||Date.now(), nome, prod:document.getElementById('sp-prod').value.trim(),
+    desc:document.getElementById('sp-desc').value.trim(),
+    partes:spParts.map(p=>({...p,pct:parseFloat(p.pct)||0})),
+    ativo:true, criadoEm:(DB.splits.find(s=>s.id===editId)||{}).criadoEm||new Date().toISOString().split('T')[0]
+  };
+  var idx=DB.splits.findIndex(s=>s.id===obj.id);
+  if(idx>=0) DB.splits[idx]=obj; else DB.splits.push(obj);
+  closeModal(null,'m-split');
+  resetSplitForm();
+  saveData(); renderSplits();
+  showToast('✓ Split salvo');
+}
+
+function resetSplitForm(){
+  document.getElementById('split-edit-id').value='';
+  document.getElementById('split-modal-title').textContent='Novo split';
+  document.getElementById('sp-nome').value='';
+  document.getElementById('sp-prod').value='';
+  document.getElementById('sp-desc').value='';
+  spParts=[];
+  renderSpParts();
+}
+
+function editSplit(id){
+  var sp=DB.splits.find(s=>s.id===id); if(!sp) return;
+  document.getElementById('split-edit-id').value=id;
+  document.getElementById('split-modal-title').textContent='Editar split';
+  document.getElementById('sp-nome').value=sp.nome;
+  document.getElementById('sp-prod').value=sp.prod||'';
+  document.getElementById('sp-desc').value=sp.desc||'';
+  spParts=sp.partes.map(p=>({...p}));
+  renderSpParts();
+  openModal('m-split');
+}
+
+function delSplit(id){
+  var uses=DB.lancamentos.filter(l=>l.splitId===id).length;
+  if(uses>0 && !confirm(`Este split está em ${uses} lançamento(s). Remover mesmo assim?`)) return;
+  if(uses===0 && !confirm('Remover este split?')) return;
+  DB.splits=DB.splits.filter(s=>s.id!==id);
+  DB.lancamentos.forEach(l=>{ if(l.splitId===id) l.splitId=null; });
+  saveData(); renderSplits(); rdash();
+  showToast('Split removido.');
+}
+
+// ===================== ASSESSORES =====================
+function renderAssessores(){
+  var tb=document.getElementById('tbody-asses');
+  var em=document.getElementById('asses-empty');
+  if(!DB.assessores.length){ tb.innerHTML=''; em.style.display=''; return; }
+  em.style.display='none';
+  var papelCor={
+    'Assessor Principal':'badge-blue','Subassessor':'badge-green',
+    'Corretora':'badge-amber','Parceiro':'badge-purple'
+  };
+  tb.innerHTML=DB.assessores.map(a=>{
+    var recebido=0;
+    DB.lancamentos.forEach(l=>{
+      if(!l.splitId){ if(a.papel==='Assessor Principal' && a.nome.toLowerCase().includes('leandro')) recebido+=parseFloat(l.bruta||0); }
+      else {
+        var sp=DB.splits.find(s=>s.id===l.splitId);
+        if(sp){ var p=sp.partes.find(p=>p.nome===a.nome); if(p) recebido+=parseFloat(l.bruta||0)*p.pct/100; }
+      }
+    });
+    var lancs=DB.lancamentos.filter(l=>{
+      if(!l.splitId && a.papel==='Assessor Principal') return true;
+      if(l.splitId){ var sp=DB.splits.find(s=>s.id===l.splitId); return sp&&sp.partes.some(p=>p.nome===a.nome); }
+      return false;
+    }).length;
+    return `<tr class="row">
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="ava ${corClass(roleToCor(a.papel))}">${initials(a.nome)}</div>
+        <div><div style="font-weight:600">${a.nome}</div><div style="font-size:11px;color:var(--text3)">${a.email||''}</div></div>
+      </div></td>
+      <td><span class="badge ${papelCor[a.papel]||'badge-gray'}">${a.papel}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${a.xp||'—'}</td>
+      <td style="font-weight:600;color:var(--green-text)">${fmtBRL(recebido)}</td>
+      <td>${lancs}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="abrirRelIndividual('${a.nome}')">Relatório</button>
+        <button class="btn btn-sm" onclick="editAssessor(${a.id})">Editar</button>
+        <button class="btn btn-sm" style="color:var(--red-text)" onclick="delAssessor(${a.id})">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function saveAssessor(){
+  var nome=document.getElementById('a-nome').value.trim();
+  if(!nome){ showToast('⚠️ Informe o nome.'); return; }
+  var editId=parseInt(document.getElementById('asses-edit-id').value)||null;
+  var obj={
+    id:editId||Date.now(), nome, papel:document.getElementById('a-papel').value,
+    xp:document.getElementById('a-xp').value.trim(), email:document.getElementById('a-email').value.trim(),
+    tel:document.getElementById('a-tel').value.trim(), obs:document.getElementById('a-obs').value.trim()
+  };
+  var idx=DB.assessores.findIndex(a=>a.id===obj.id);
+  if(idx>=0) DB.assessores[idx]=obj; else DB.assessores.push(obj);
+  closeModal(null,'m-assessor');
+  resetAssessorForm();
+  saveData(); renderAssessores();
+  showToast('✓ Assessor salvo');
+}
+
+function editAssessor(id){
+  var a=DB.assessores.find(x=>x.id===id); if(!a) return;
+  document.getElementById('asses-edit-id').value=id;
+  document.getElementById('asses-modal-title').textContent='Editar assessor';
+  document.getElementById('a-nome').value=a.nome;
+  document.getElementById('a-papel').value=a.papel;
+  document.getElementById('a-xp').value=a.xp||'';
+  document.getElementById('a-email').value=a.email||'';
+  document.getElementById('a-tel').value=a.tel||'';
+  document.getElementById('a-obs').value=a.obs||'';
+  openModal('m-assessor');
+}
+
+function delAssessor(id){
+  if(confirm('Remover assessor?')){ DB.assessores=DB.assessores.filter(a=>a.id!==id); saveData(); renderAssessores(); showToast('Assessor removido.'); }
+}
+
+function resetAssessorForm(){
+  document.getElementById('asses-edit-id').value='';
+  document.getElementById('asses-modal-title').textContent='Novo assessor';
+  ['a-nome','a-xp','a-email','a-tel','a-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-papel').value='Assessor Principal';
+}
+
+// ===================== TEMPLATES =====================
+function renderTemplates(){
+  var list=document.getElementById('tpl-list');
+  var em=document.getElementById('tpl-empty');
+  if(!DB.templates.length){ list.innerHTML=''; em.style.display=''; return; }
+  em.style.display='none';
+  list.innerHTML='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">'+
+  DB.templates.map(t=>`
+    <div class="card" style="cursor:default">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div>
+          <div style="font-size:14px;font-weight:600">${t.nome}</div>
+          ${t.cat?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${t.cat}</div>`:''}
+        </div>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-sm" onclick="editTemplate(${t.id})">Editar</button>
+          <button class="btn btn-sm" style="color:var(--red-text)" onclick="delTemplate(${t.id})">✕</button>
+        </div>
+      </div>
+      <div class="split-bar" style="margin-bottom:8px">${buildSplitBar(t.partes)}</div>
+      <div class="split-legend">${buildSplitLeg(t.partes)}</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:12px;width:100%" onclick="usarTemplate(${t.id})">
+        Usar este template →
+      </button>
+    </div>`).join('')+
+  '</div>';
+}
+
+function usarTemplate(id){
+  var t=DB.templates.find(x=>x.id===id); if(!t) return;
+  spParts=t.partes.map(p=>({...p}));
+  document.getElementById('split-edit-id').value='';
+  document.getElementById('split-modal-title').textContent='Novo split (baseado em template)';
+  document.getElementById('sp-nome').value=t.nome;
+  document.getElementById('sp-prod').value=t.cat||'';
+  document.getElementById('sp-desc').value='';
+  renderSpParts();
+  go('splits', document.querySelector('[data-pg="splits"]'));
+  openModal('m-split');
+}
+
+function addTplPart(){
+  tpParts.push({nome:'',papel:'Subassessor',pct:0,cor:'sub'});
+  renderTplParts();
+}
+
+function renderTplParts(){
+  var pl=document.getElementById('tp-parts-list');
+  pl.innerHTML=tpParts.map((p,i)=>`
+    <div class="part-item">
+      <div style="flex:1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input class="form-control" style="width:160px;height:30px;font-size:12px" placeholder="Nome/Papel" value="${p.nome}" oninput="tpParts[${i}].nome=this.value">
+        <select class="form-control" style="width:140px;height:30px;font-size:12px" onchange="tpParts[${i}].papel=this.value;tpParts[${i}].cor=roleToCor(this.value)">
+          ${['Assessor Principal','Subassessor','Corretora','Parceiro'].map(r=>`<option ${r===p.papel?'selected':''}>${r}</option>`).join('')}
+        </select>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input class="form-control" style="width:70px;height:30px;font-size:12px;text-align:right" type="number" min="0" max="100" value="${p.pct}" oninput="tpParts[${i}].pct=parseFloat(this.value)||0;updateTpBar()">
+          <span style="font-size:12px;color:var(--text3)">%</span>
+        </div>
+      </div>
+      <button onclick="tpParts.splice(${i},1);renderTplParts()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px">×</button>
+    </div>`).join('');
+  updateTpBar();
+}
+
+function updateTpBar(){
+  var sum=tpParts.reduce((a,p)=>a+(parseFloat(p.pct)||0),0);
+  document.getElementById('tp-bar').innerHTML=buildSplitBar(tpParts);
+  document.getElementById('tp-leg').innerHTML=buildSplitLeg(tpParts);
+  var w=document.getElementById('tp-warn');
+  var s=document.getElementById('tp-sum');
+  if(Math.round(sum)!==100){ w.style.display='block'; if(s) s.textContent=Math.round(sum*100)/100; }
+  else { w.style.display='none'; }
+}
+
+function saveTemplate(){
+  var nome=document.getElementById('tp-nome').value.trim();
+  if(!nome){ showToast('⚠️ Informe o nome.'); return; }
+  var sum=tpParts.reduce((a,p)=>a+(parseFloat(p.pct)||0),0);
+  if(Math.round(sum)!==100){ showToast('⚠️ A soma deve ser 100%.'); return; }
+  var editId=parseInt(document.getElementById('tpl-edit-id').value)||null;
+  var obj={id:editId||Date.now(), nome, cat:document.getElementById('tp-cat').value.trim(), partes:tpParts.map(p=>({...p,pct:parseFloat(p.pct)||0}))};
+  var idx=DB.templates.findIndex(t=>t.id===obj.id);
+  if(idx>=0) DB.templates[idx]=obj; else DB.templates.push(obj);
+  closeModal(null,'m-template');
+  resetTplForm();
+  saveData(); renderTemplates();
+  showToast('✓ Template salvo');
+}
+
+function editTemplate(id){
+  var t=DB.templates.find(x=>x.id===id); if(!t) return;
+  document.getElementById('tpl-edit-id').value=id;
+  document.getElementById('tpl-modal-title').textContent='Editar template';
+  document.getElementById('tp-nome').value=t.nome;
+  document.getElementById('tp-cat').value=t.cat||'';
+  tpParts=t.partes.map(p=>({...p}));
+  renderTplParts();
+  openModal('m-template');
+}
+
+function delTemplate(id){
+  if(confirm('Remover template?')){ DB.templates=DB.templates.filter(t=>t.id!==id); saveData(); renderTemplates(); showToast('Template removido.'); }
+}
+
+function resetTplForm(){
+  document.getElementById('tpl-edit-id').value='';
+  document.getElementById('tpl-modal-title').textContent='Novo template de split';
+  document.getElementById('tp-nome').value='';
+  document.getElementById('tp-cat').value='';
+  tpParts=[];
+  renderTplParts();
+}
+
+// ===================== RELATÓRIOS =====================
+function renderRelatorios(){
+  // Por produto
+  var rp=document.getElementById('rep-prod');
+  var pm={pj1:{},pj2:{}};
+  DB.lancamentos.forEach(l=>{
+    var pj=(l.pj||'PJ1')==='PJ2'?'pj2':'pj1';
+    pm[pj][l.prod]=(pm[pj][l.prod]||0)+parseFloat(l.bruta||0);
+  });
+  var allProds=[...new Set(DB.lancamentos.map(l=>l.prod))];
+  var ptotal=DB.lancamentos.reduce((a,l)=>a+parseFloat(l.bruta||0),0)||1;
+  rp.innerHTML=`<div style="display:flex;gap:6px;margin-bottom:10px;font-size:11px;font-weight:600">
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);display:inline-block"></span>PJ1 BTG</span>
+    <span style="display:flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:var(--purple);display:inline-block"></span>PJ2 Outras</span>
+  </div>`+allProds.sort().map(p=>{
+    var v1=pm.pj1[p]||0, v2=pm.pj2[p]||0, tot=v1+v2;
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="font-weight:500">${p}</span>
+        <span style="color:var(--text3)">${fmtBRL(tot)}</span>
+      </div>
+      <div style="height:8px;border-radius:4px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);display:flex">
+        <div style="width:${Math.round(v1/ptotal*100)}%;background:var(--accent)"></div>
+        <div style="width:${Math.round(v2/ptotal*100)}%;background:var(--purple)"></div>
+      </div>
+      <div style="display:flex;gap:12px;font-size:10px;color:var(--text3);margin-top:3px">
+        <span>PJ1: ${fmtBRL(v1)}</span><span>PJ2: ${fmtBRL(v2)}</span>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">Sem dados.</div>';
+
+  // Por status
+  var rs=document.getElementById('rep-status');
+  var sm={};
+  DB.lancamentos.forEach(l=>{ sm[l.status]=(sm[l.status]||0)+parseFloat(l.bruta||0); });
+  var stotal=Object.values(sm).reduce((a,v)=>a+v,0)||1;
+  var scorCls={Pago:'badge-green',Pendente:'badge-amber',Processando:'badge-blue',Cancelado:'badge-red'};
+  rs.innerHTML=Object.entries(sm).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="badge ${scorCls[s]||'badge-gray'}">${s}</span>
+      <span style="font-weight:600">${fmtBRL(v)}</span>
+      <span style="color:var(--text3);font-size:12px">${Math.round(v/stotal*100)}%</span>
+    </div>`).join('')||'<div class="empty">Sem dados.</div>';
+
+  // Mensal com PJ1/PJ2
+  var rm=document.getElementById('rep-mensal');
+  var mm={};
+  DB.lancamentos.forEach(l=>{
+    var m=l.data.slice(0,7);
+    if(!mm[m]) mm[m]={bruta:0,liquida:0,pj1:0,pj2:0,n:0};
+    var v=parseFloat(l.bruta||0);
+    mm[m].bruta+=v; mm[m].liquida+=minhaParte(l); mm[m].n++;
+    if((l.pj||'PJ1')==='PJ2') mm[m].pj2+=v; else mm[m].pj1+=v;
+  });
+  var mkeys=Object.keys(mm).sort().reverse();
+  rm.innerHTML=mkeys.length?`<table><thead><tr><th>Mês</th><th>PJ1 — BTG</th><th>PJ2 — Outras</th><th>Bruta total</th><th>Minha parte</th><th>Lançamentos</th></tr></thead><tbody>${
+    mkeys.map(m=>`<tr>
+      <td style="font-weight:500">${getMonthLabel(m)}</td>
+      <td>${fmtBRL(mm[m].pj1)}</td>
+      <td style="color:var(--purple-text)">${fmtBRL(mm[m].pj2)}</td>
+      <td style="font-weight:600">${fmtBRL(mm[m].bruta)}</td>
+      <td style="color:var(--green-text);font-weight:600">${fmtBRL(mm[m].liquida)}</td>
+      <td>${mm[m].n}</td>
+    </tr>`).join('')
+  }</tbody></table>`:'<div class="empty">Sem dados.</div>';
+
+  // Por assessor com link para individual
+  var ra=document.getElementById('rep-assessor');
+  var am={};
+  DB.lancamentos.forEach(l=>{
+    if(!l.splitId){ am['Leandro Machado']=(am['Leandro Machado']||0)+parseFloat(l.bruta||0); }
+    else{
+      var sp=DB.splits.find(s=>s.id===l.splitId);
+      if(sp) sp.partes.forEach(p=>{ am[p.nome]=(am[p.nome]||0)+parseFloat(l.bruta||0)*p.pct/100; });
+    }
+  });
+  var atotal=Object.values(am).reduce((a,v)=>a+v,0)||1;
+  ra.innerHTML=Object.entries(am).sort((a,b)=>b[1]-a[1]).length?
+  `<table><thead><tr><th>Assessor</th><th>Total recebido</th><th>% do total</th><th></th></tr></thead><tbody>${
+    Object.entries(am).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`
+      <tr>
+        <td><strong>${n}</strong></td>
+        <td style="color:var(--green-text);font-weight:600">${fmtBRL(v)}</td>
+        <td><div style="display:flex;align-items:center;gap:8px"><span>${Math.round(v/atotal*100)}%</span><div class="prog-bar" style="flex:1;margin:0"><div class="prog-fill" style="width:${Math.round(v/atotal*100)}%"></div></div></div></td>
+        <td><button class="btn btn-sm" onclick="abrirRelIndividual('${n}')">Ver relatório →</button></td>
+      </tr>`).join('')
+  }</tbody></table>`:'<div class="empty">Sem dados.</div>';
+}
+
+// ===================== RELATÓRIO INDIVIDUAL =====================
+function initRelIndividual(){
+  // Popular select de assessores
+  var sel=document.getElementById('ri-assessor');
+  var cur=sel.value;
+  // Coletar todos os nomes que aparecem em lançamentos/splits
+  var nomes=new Set();
+  DB.lancamentos.forEach(l=>{
+    if(!l.splitId){ nomes.add('Leandro Machado'); }
+    else{
+      var sp=DB.splits.find(s=>s.id===l.splitId);
+      if(sp) sp.partes.forEach(p=>nomes.add(p.nome));
+    }
+  });
+  DB.assessores.forEach(a=>nomes.add(a.nome));
+  sel.innerHTML='<option value="">Selecione um assessor...</option>'+[...nomes].sort().map(n=>`<option value="${n}" ${n===cur?'selected':''}>${n}</option>`).join('');
+
+  // Popular select de meses
+  var msel=document.getElementById('ri-mes');
+  var mcur=msel.value;
+  var meses=[...new Set(DB.lancamentos.map(l=>l.data.slice(0,7)))].sort().reverse();
+  msel.innerHTML='<option value="">Todos os meses</option>'+meses.map(m=>`<option value="${m}" ${m===mcur?'selected':''}>${getMonthLabel(m)}</option>`).join('');
+
+  if(cur) renderRelIndividual();
+}
+
+function abrirRelIndividual(nome){
+  go('rel-assessor', document.querySelector('[data-pg="rel-assessor"]'));
+  setTimeout(()=>{
+    document.getElementById('ri-assessor').value=nome;
+    renderRelIndividual();
+  },50);
+}
+
+function renderRelIndividual(){
+  var nome=document.getElementById('ri-assessor').value;
+  var pjFilt=document.getElementById('ri-pj').value;
+  var mesFilt=document.getElementById('ri-mes').value;
+  var body=document.getElementById('ri-body');
+
+  if(!nome){
+    body.innerHTML='<div class="empty" style="padding:60px"><span class="empty-icon">◉</span>Selecione um assessor para ver o relatório individual.</div>';
+    return;
+  }
+
+  // Calcular parte deste assessor em cada lançamento
+  function parteAssessor(l, n){
+    if(!l.splitId){
+      return (n==='Leandro Machado'||n.toLowerCase().includes('leandro')) ? parseFloat(l.bruta||0) : 0;
+    }
+    var sp=DB.splits.find(s=>s.id===l.splitId);
+    if(!sp) return 0;
+    var p=sp.partes.find(p=>p.nome===n);
+    return p ? parseFloat(l.bruta||0)*p.pct/100 : 0;
+  }
+
+  // Filtrar lançamentos onde este assessor participa
+  var lancAll=DB.lancamentos.filter(l=>{
+    var parte=parteAssessor(l,nome);
+    if(parte<=0) return false;
+    if(pjFilt && (l.pj||'PJ1')!==pjFilt) return false;
+    if(mesFilt && !l.data.startsWith(mesFilt)) return false;
+    return true;
+  });
+
+  var totalBruta=lancAll.reduce((a,l)=>a+parseFloat(l.bruta||0),0);
+  var totalParte=lancAll.reduce((a,l)=>a+parteAssessor(l,nome),0);
+  var pj1Lancs=lancAll.filter(l=>(l.pj||'PJ1')==='PJ1');
+  var pj2Lancs=lancAll.filter(l=>(l.pj||'')  ==='PJ2');
+  var pj1Val=pj1Lancs.reduce((a,l)=>a+parteAssessor(l,nome),0);
+  var pj2Val=pj2Lancs.reduce((a,l)=>a+parteAssessor(l,nome),0);
+  var pj1Bruta=pj1Lancs.reduce((a,l)=>a+parseFloat(l.bruta||0),0);
+  var pj2Bruta=pj2Lancs.reduce((a,l)=>a+parseFloat(l.bruta||0),0);
+
+  // Splits em que participa
+  var splitsParticipa=DB.splits.filter(sp=>sp.partes.some(p=>p.nome===nome));
+
+  // Evolução mensal
+  var mensal={};
+  lancAll.forEach(l=>{
+    var m=l.data.slice(0,7);
+    if(!mensal[m]) mensal[m]={pj1:0,pj2:0,bruta:0,parte:0,n:0};
+    mensal[m].parte+=parteAssessor(l,nome);
+    mensal[m].bruta+=parseFloat(l.bruta||0);
+    mensal[m].n++;
+    if((l.pj||'PJ1')==='PJ2') mensal[m].pj2+=parteAssessor(l,nome);
+    else mensal[m].pj1+=parteAssessor(l,nome);
+  });
+  var mkeys=Object.keys(mensal).sort();
+  var maxParte=Math.max(...mkeys.map(m=>mensal[m].parte),1);
+
+  // Encontrar assessor cadastrado
+  var aCad=DB.assessores.find(a=>a.nome===nome);
+  var papelCor={'Assessor Principal':'badge-blue','Subassessor':'badge-green','Corretora':'badge-amber','Parceiro':'badge-purple'};
+  var papel=aCad?aCad.papel:'Assessor';
+
+  body.innerHTML=`
+    <!-- CABEÇALHO DO ASSESSOR -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0;box-shadow:0 2px 8px rgba(10,95,196,.25)">${initials(nome)}</div>
+        <div style="flex:1">
+          <div style="font-size:18px;font-weight:700;letter-spacing:-.3px">${nome}</div>
+          <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;align-items:center">
+            <span class="badge ${papelCor[papel]||'badge-gray'}">${papel}</span>
+            ${aCad&&aCad.xp?`<span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">Cód: ${aCad.xp}</span>`:''}
+            ${aCad&&aCad.email?`<span style="font-size:12px;color:var(--text3)">${aCad.email}</span>`:''}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Total recebido</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green-text)">${fmtBRL(totalParte)}</div>
+          <div style="font-size:11px;color:var(--text3)">${lancAll.length} lançamento(s)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÉTRICAS PJ1/PJ2 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+      <div class="metric" style="border-top:3px solid var(--accent)">
+        <div class="metric-label">Bruta total</div>
+        <div class="metric-value" style="font-size:16px;padding-top:3px">${fmtBRL(totalBruta)}</div>
+        <div class="metric-sub">${lancAll.length} operações</div>
+      </div>
+      <div class="metric green-accent">
+        <div class="metric-label">Parte líquida</div>
+        <div class="metric-value" style="font-size:16px;padding-top:3px">${fmtBRL(totalParte)}</div>
+        <div class="metric-sub">${totalBruta>0?Math.round(totalParte/totalBruta*100):0}% do bruto</div>
+      </div>
+      <div class="metric" style="border-top:3px solid var(--blue-text)">
+        <div class="metric-label">PJ1 — BTG Pactual</div>
+        <div class="metric-value" style="font-size:15px;padding-top:3px">${fmtBRL(pj1Val)}</div>
+        <div class="metric-sub">${pj1Lancs.length} lanç. · bruta ${fmtBRL(pj1Bruta)}</div>
+      </div>
+      <div class="metric" style="border-top:3px solid var(--purple)">
+        <div class="metric-label">PJ2 — Outras inst.</div>
+        <div class="metric-value" style="font-size:15px;padding-top:3px">${fmtBRL(pj2Val)}</div>
+        <div class="metric-sub">${pj2Lancs.length} lanç. · bruta ${fmtBRL(pj2Bruta)}</div>
+      </div>
+    </div>
+
+    <!-- GRÁFICO PJ1 vs PJ2 + EVOLUÇÃO MENSAL -->
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:16px;margin-bottom:16px">
+      <div class="card">
+        <div class="card-title">Composição PJ1 × PJ2</div>
+        ${(pj1Val+pj2Val)>0?`
+        <div class="split-bar" style="height:30px;border-radius:8px;margin-bottom:12px">
+          <div class="split-seg assessor" style="width:${Math.round(pj1Val/(pj1Val+pj2Val)*100)}%;font-size:12px">
+            ${Math.round(pj1Val/(pj1Val+pj2Val)*100)}%
+          </div>
+          <div class="split-seg outro" style="width:${Math.round(pj2Val/(pj1Val+pj2Val)*100)}%;font-size:12px">
+            ${Math.round(pj2Val/(pj1Val+pj2Val)*100)>5?Math.round(pj2Val/(pj1Val+pj2Val)*100)+'%':''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:var(--accent-light);border:1px solid #BFD9F8;border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;font-weight:600;color:var(--accent-text);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px">PJ1 — BTG Pactual</div>
+            <div style="font-size:16px;font-weight:700;color:var(--accent)">${fmtBRL(pj1Val)}</div>
+            <div style="font-size:11px;color:var(--text3)">${pj1Lancs.length} lançamentos</div>
+          </div>
+          <div style="background:var(--purple-bg);border:1px solid #DDD6FE;border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;font-weight:600;color:var(--purple-text);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px">PJ2 — Outras inst.</div>
+            <div style="font-size:16px;font-weight:700;color:var(--purple)">${fmtBRL(pj2Val)}</div>
+            <div style="font-size:11px;color:var(--text3)">${pj2Lancs.length} lançamentos</div>
+          </div>
+        </div>`:'<div class="empty">Sem dados.</div>'}
+      </div>
+
+      <div class="card">
+        <div class="card-title">Evolução mensal (parte líquida)</div>
+        ${mkeys.length?`
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${mkeys.reverse().map(m=>{
+            var pct=Math.round(mensal[m].parte/maxParte*100);
+            var pj1pct=mensal[m].parte>0?Math.round(mensal[m].pj1/mensal[m].parte*100):0;
+            var pj2pct=100-pj1pct;
+            return `<div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+                <span style="font-weight:500;color:var(--text2)">${getMonthLabel(m)}</span>
+                <div style="display:flex;gap:10px">
+                  <span style="color:var(--text3);font-size:11px">PJ1: ${fmtBRL(mensal[m].pj1)} · PJ2: ${fmtBRL(mensal[m].pj2)}</span>
+                  <span style="font-weight:600">${fmtBRL(mensal[m].parte)}</span>
+                </div>
+              </div>
+              <div style="height:16px;border-radius:4px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);display:flex">
+                <div style="width:${pct*pj1pct/100}%;background:var(--accent);transition:width .4s"></div>
+                <div style="width:${pct*pj2pct/100}%;background:var(--purple);transition:width .4s"></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`:'<div class="empty">Sem histórico.</div>'}
+      </div>
+    </div>
+
+    <!-- SPLITS EM QUE PARTICIPA -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Splits em que participa (${splitsParticipa.length})</div>
+      ${splitsParticipa.length?`
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${splitsParticipa.map(sp=>{
+          var minhaPart=sp.partes.find(p=>p.nome===nome);
+          var usosNome=DB.lancamentos.filter(l=>l.splitId===sp.id).length;
+          return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:13px">${sp.nome}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">${sp.prod||''} — ${usosNome} lançamento(s)</div>
+            </div>
+            <div class="split-bar" style="width:180px;height:14px;border-radius:4px;margin:0">${buildSplitBar(sp.partes)}</div>
+            <div style="text-align:right;min-width:50px">
+              <div style="font-size:15px;font-weight:700;color:var(--accent)">${minhaPart?minhaPart.pct:0}%</div>
+              <div style="font-size:10px;color:var(--text3)">deste split</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`:'<div class="empty" style="padding:16px">Não participa de nenhum split cadastrado.</div>'}
+    </div>
+
+    <!-- HISTÓRICO DETALHADO -->
+    <div class="card">
+      <div class="card-title">Histórico de lançamentos detalhado (${lancAll.length})</div>
+      ${lancAll.length?`
+      <table>
+        <thead><tr>
+          <th>Data</th><th>Cliente</th><th>Produto</th><th>PJ</th>
+          <th>Bruta</th><th>% neste split</th><th>Parte recebida</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          ${[...lancAll].sort((a,b)=>b.data.localeCompare(a.data)).map(l=>{
+            var sp=l.splitId?DB.splits.find(s=>s.id===l.splitId):null;
+            var p=sp?sp.partes.find(p=>p.nome===nome):null;
+            var pct=p?p.pct:(nome==='Leandro Machado'||nome.toLowerCase().includes('leandro')?100:0);
+            var parte=parteAssessor(l,nome);
+            return `<tr>
+              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${fmtDate(l.data)}</td>
+              <td><strong>${l.cli}</strong>${l.obs?`<div style="font-size:10px;color:var(--text3)">${l.obs}</div>`:''}</td>
+              <td><span class="badge badge-gray">${l.prod}</span></td>
+              <td>${badgePJ(l.pj)}</td>
+              <td>${fmtBRL(l.bruta)}</td>
+              <td style="font-weight:600;color:var(--accent)">${pct}%</td>
+              <td style="font-weight:700;color:var(--green-text)">${fmtBRL(parte)}</td>
+              <td>${badgeStatus(l.status)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`:'<div class="empty">Nenhum lançamento encontrado com os filtros selecionados.</div>'}
+    </div>`;
+}
+
+// ===================== LOCALSTORAGE =====================
+function saveData(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      lancamentos:DB.lancamentos, splits:DB.splits,
+      assessores:DB.assessores, templates:DB.templates,
+      savedAt:new Date().toISOString()
+    }));
+    updateSavedLabel();
+  } catch(e){ console.warn('Erro ao salvar:',e); }
+}
+
+function loadData(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);
+    if(raw){
+      var s=JSON.parse(raw);
+      if(s.lancamentos) DB.lancamentos=s.lancamentos;
+      if(s.splits) DB.splits=s.splits;
+      if(s.assessores&&s.assessores.length) DB.assessores=s.assessores;
+      if(s.templates&&s.templates.length) DB.templates=s.templates;
+      return true;
+    }
+  } catch(e){ console.warn('Erro ao carregar:',e); }
+  return false;
+}
+
+function updateSavedLabel(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);
+    if(raw){
+      var d=JSON.parse(raw).savedAt;
+      if(d){ document.getElementById('last-saved').textContent='💾 Salvo '+new Date(d).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+    }
+  } catch(e){}
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;background:#101828;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  setTimeout(()=>{ t.style.opacity='0'; },2500);
+}
+
+// Nav reset button
+var nav=document.getElementById('nav');
+var resetBtn=document.createElement('div');
+resetBtn.style.cssText='margin-top:auto;padding:16px;';
+resetBtn.innerHTML='<div onclick="clearData()" style="display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px;color:var(--text3);cursor:pointer;border-radius:6px;transition:background .15s" onmouseover="this.style.background=\'var(--surface2)\'" onmouseout="this.style.background=\'\'"><span>⟳</span> Resetar dados</div>';
+nav.appendChild(resetBtn);
+
+function clearData(){
+  if(confirm('Resetar todos os dados para o estado original?')){ localStorage.removeItem(LS_KEY); initDemo(); saveData(); go('dashboard',document.querySelector('[data-pg="dashboard"]')); showToast('Dados resetados.'); }
+}
+
+// Override openModal for split to init default parts
+var _origOpenModal = openModal;
+openModal = function(id){
+  if(id==='m-split' && !document.getElementById('split-edit-id').value){
+    spParts=[
+      {nome:'Leandro Machado',papel:'Assessor Principal',pct:60,cor:'assessor'},
+      {nome:'BTG Pactual',papel:'Corretora',pct:40,cor:'corretora'}
+    ];
+    renderSpParts();
+  }
+  if(id==='m-template' && !document.getElementById('tpl-edit-id').value){
+    tpParts=[
+      {nome:'Assessor Principal',papel:'Assessor Principal',pct:85,cor:'assessor'},
+      {nome:'BTG Pactual',papel:'Corretora',pct:15,cor:'corretora'}
+    ];
+    renderTplParts();
+  }
+  if(id==='m-lancamento'){
+    populateSplitSelect();
+    if(!document.getElementById('l-data').value) document.getElementById('l-data').value=new Date().toISOString().split('T')[0];
+  }
+  _origOpenModal(id);
+};
+
+// Boot
+var had=loadData();
+if(!had){ initDemo(); saveData(); }
+rdash();
+updateSavedLabel();
+setInterval(()=>{ saveData(); },60000);
+</script>
+</body>
+</html>
